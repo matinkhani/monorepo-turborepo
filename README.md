@@ -1,74 +1,60 @@
-## What is Turborepo?
+---
 
-A tool from vercel that allows you to manage your monorepo in a more efficient way and run your taks much faster.
+Create a Turborepo with NextJs & Tailwindcss & Shadcn
+Turborepo, developed by Vercel, is a powerful tool that makes managing monorepos easier by optimizing workflows, speeding up build times, and ensuring consistency across projects. In this article, we'll explain what monorepos are and guide you through setting up a Turborepo with Next.js, Tailwind CSS, and Shadcn - a UI library that enhances your design process. By the end, you'll know how to create a scalable monorepo setup that improves development and ensures smooth integration across your projects. Whether you're handling multiple projects or just looking to streamline your workflow, this guide will provide the tools and knowledge you need.
+What is Monorepo?
+A monorepo is essentially a single codebase that contains multiple applications and packages. The alternative setup is called a polyrepo (one project, one Git repository), where each project has its own codebase, published and versioned separately. Monorepos help avoid code duplication between projects and can be particularly useful as you scale and start needing multiple projects, each potentially containing shared packages.
+For example, imagine you have three separate repositories: one for your Next.js application, one for your React.js application, and one for a shared package. This shared package could be a UI component library or shared configuration files used by both applications.
+In a polyrepo setup, if you want to make a change to the shared package used by both the Next.js and React.js apps, you would need to:
+Make the change in the shared package.
+Publish the updated package to npm.
+Update the dependencies in both the React.js and Next.js apps to use the new version.
+Commit the changes to each repository.
 
-Turborepo understands your monorepo, it understands that your packages needs to be built before your apps can be built.
-
-Turborepo also never does the same work twice. If you run a build it makes a hash out of them. If it doesn’t find that in its cache, then it just runs the build and then stores it in its cache for later. That means the next time that you run that build on the same source files it just doesn’t do the build, it restores what it had from the cache.
-
-> *turborepo also has remote caching. with remote caching you can share the turborepo cache across your entire team and ci. resulting in even faster builds and days of time saved.*
-> 
+Only then will your applications be synchronized with the new feature in the shared package.‌
+In contrast, with a monorepo, all your projects live in a single codebase. You can make changes directly to the shared utilities or packages, and they will be immediately available to both the React.js and Next.js applications. Since the apps depend on the local version within the same codebase, there's no need to manage versions or publish updates, making the process much easier and more streamlined.
 
 ---
 
-## What is Monorepo?
-
-A monorepo is basically a collection of many different applications and packages in a single code base. the alternative setup is called *polyrepo (one project, one git repository)* and that is where you would have multiple code bases which are published and versioned separately. That helps us avoid a lot of code duplication between projects. But often you don’t need a monorepo until you get to a scale that you start needing multiple projects and start needing to have what we called packages in a monorepo.
-
-Imagine you have three different separate repositories, one for your *nextjs* application, one for your *reactjs* application and one for your *shared package*, that can be a shared ui package that’s used in both your applications, or it can be shared configs for your apps.
-
-When you want to make a change in the *shared package/utility* that’s used by *nextjs* app and *reactjs* app, you need to make that change and need to publish that to npm, and then need to update the *reactjs* and *nextjs* and bump up the version in their depenencies and then make a commit there and then your apps now sychronized with the new feature in this *shared package/utility*.
-
-‌But if you want to do the same thing in a monorepo, they would all live in this same single code base. You can basically make any changes you want to the *utilities* and then it’s shared between the *reactjs* and *nextjs* apps. they’re not dependng on a specific version of this shared ui package or config package, they’re just depending on the local version in the same code base which makes it much more easier.
+What is Turborepo?
+Turborepo, helps you manage your monorepo more efficiently and run tasks much faster.
+Turborepo understands your monorepo structure, recognizing that packages need to be built before your apps can be compiled.
+It never performs the same work twice. When you run a build, Turborepo generates a hash for the process. If it doesn't find the hash in its cache, it runs the build and then stores the result in the cache for future use. This means that the next time you run a build on the same source files, Turborepo skips the build process and restores the results from the cache.
+Turborepo also supports remote caching. With remote caching, you can share the Turborepo cache across your entire team and CI/CD pipeline, resulting in even faster builds and significant time savings.
+GitHub repository of the final Turborepo app:
+https://github.com/matinkhani/monorepo-turborepo
 
 ---
 
-## Workspace
-
-The main building block of a monorepo is workspaces, each application and package you build will be its own workspace. a workspace is basically a folder containing a `package.json` file, each workspace can declare its own dependencies, they can depend on each other, they can export code for other to use and they can have their own scripts.
+Workspace
+The main building block of a monorepo is the workspace. Each application and package you build will be its own workspace. A workspace is essentially a folder that contains a package.json file. Each workspace can declare its own dependencies, rely on other workspaces, export code for others to use, and have its own scripts.
 
 ---
 
-## Package.json in different package managers
-
-It doesn't matter which package manager you use (e.g., npm, pnpm, or yarn); in the `package.json` file for a *reactjs* or *nextjs* application or any other, we define dependencies for *shared packages*. This way, we specify that we want to use this library or package in this application.
-
+Package.json in different package managers
+Regardless of which package manager you use (e.g., npm, pnpm, or Yarn), the package.json file in your React.js, Next.js, or any other application defines the dependencies for shared packages. This file specifies which libraries or packages you want to use in your application.
 npm or yarn:
-
-```jsx
 {
   "dependencies": {
     "next": "latest", // External dependency
     "@repo/ui": "*" // Internal dependency
   }
 }
-```
-
 pnpm:
-
-```jsx
 {
   "dependencies": {
     "next": "latest", // External dependency
     "@repo/ui": "workspace:*" // Internal dependency
   }
 }
-```
-
-> *these stars * indicate that it’s not resolving to any specific version, it’s just resolving to the one that’s in the workspace.*
-> 
+The asterisks (*) indicate that the dependency is not tied to a specific version; instead, it resolves to the version available within the workspace.
 
 ---
 
-## Root Workspace
-
-On top of the workspaces that you would have in your different applications and packages, there is also a root workspace that’s containing these whole packages and apps together, this is a good place for you to specify dependencies that are present across the entire monorepo. You can write task that belongs to the whole monorpeo as opposed to just individual workspaces.
-
-root `package.json`:
-
+Root Workspace
+In addition to the individual workspaces for your different applications and packages, there's also a root workspace that contains all of these packages and apps together. The root workspace is a good place to specify dependencies that are used across the entire monorepo. You can also define tasks that apply to the entire monorepo, rather than just individual workspaces.
+root package.json:
 npm:
-
-```jsx
 {
   "name": "TURBOREPO",
   "private": true,
@@ -76,7 +62,7 @@ npm:
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \\"**/*.{ts,tsx,md}\\""
   },
   "devDependencies": {
     "prettier": "^3.2.5",
@@ -92,12 +78,7 @@ npm:
     "packages/*"
   ]
 }
-
-```
-
 pnpm:
-
-```jsx
 {
   "name": "TURBOREPO",
   "private": true,
@@ -105,7 +86,7 @@ pnpm:
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \\"**/*.{ts,tsx,md}\\""
   },
   "devDependencies": {
     "prettier": "^3.2.5",
@@ -117,56 +98,40 @@ pnpm:
     "node": ">=18"
   }
 }
-```
-
-> *also in pnpm workspaces define in a file called `pnpm-workspace.yaml`:*
-> 
-
-```jsx
+also in pnpm workspaces define in a file called pnpm-workspace.yaml:
 packages:
   - "apps/*"
   - "packages/*"
-```
 
 ---
 
-## Getting Started
+Getting Started
+To begin, install Turborepo globally so you can run Turbo commands in your terminal. If you prefer not to use Turbo commands, you can use npm, pnpm, or Yarn instead.
+npm: npm install turbo --global
+yarn: yarn global add turbo
+pnpm: pnpm install turbo --global
+If you like, you can also install example projects from the Turborepo documentation, such as with-docker, with-prisma, with-tailwind, with-vue-nuxt, and more.
+Install Turborepo
+To install Turborepo, run the following command:
+npx create-turbo@latest
+After the installation, you will see a starter repository with the following structure:
+Apps Folder: Contains two deployable Next.js applications:
 
-Install turborepo globally so you can run turbo commands in your terminal (if you don’t want to use turbo commands you can use npm or pnpm or yarn):
+web
+docs
 
-npm: `npm install turbo --global`
+node_modules: A shared folder for all the modules and packages used across all of your apps and packages.
+Packages Folder: Contains different packages or libraries that are shared between your apps, including:
 
-yarn: `yarn global add turbo`
+eslint-config: Shared ESLint configuration for your apps.
+typescript-config: Shared TypeScript configuration for your apps.
+ui: A React.js library to be shared between your apps.
 
-pnpm: `pnpm install turbo --global`
-
-> *If you want you can install examples from turborepo document like (with-docker, with-prisma, with-tailwind, with-vue-nuxt and etc)*
-> 
-
-### Install Turborepo
-
-`npx create-turbo@latest`
-
-after installing you see starter repository with:
-
-- two deployable nextjs applications in apps folder:
-1. web
-2. docs
-- node_modules: it’s a shared folder of all the modules and packages we’re using between all of our apps and packages.
-- packages: in the packages we are having different packages or libraries that we want to share between our apps:
-1. eslint config: to share our eslint config between our apps.
-2. typescript config: to share typescript configuration in our apps.
-3. ui: a reactjs library to be shared between our apps.
-
-Now you can see we’re having everything in the same code base which makes changing them easier and running build tasks and scripts faster.
-
-### Turbo.json
-
-On top of the root `package.json` we also have this `turbo.json` which defiens the tasks for running different scripts or tasks. Anything that you would want to run with turbo on `package.json` scripts needs to be registered in your `turbo.json` :
-
-```jsx
+Now, everything is in the same codebase, making it easier to manage changes and run build tasks and scripts faster.
+Turbo.json
+In addition to the root package.json, you will also have a turbo.json file. This file defines the tasks for running various scripts or processes. Any script you want to run using Turbo commands from package.json must be registered in your turbo.json file:
 {
-  "$schema": "https://turbo.build/schema.json",
+  "$schema": "<https://turbo.build/schema.json>",
   "ui": "tui",
   "tasks": {
     "build": {
@@ -183,13 +148,8 @@ On top of the root `package.json` we also have this `turbo.json` which defiens t
     }
   }
 }
-```
-
-### Web App Package.json:
-
-If we dive into web app which is a nextjs app, we can see a `package.json` over there like this:
-
-```jsx
+Web App Package.json:
+If we dive into the web app, which is a Next.js application, we can find a package.json file with the following content:
 {
   "name": "web",
   "version": "0.1.0",
@@ -217,62 +177,37 @@ If we dive into web app which is a nextjs app, we can see a `package.json` over 
     "eslint-config-next": "15.0.0-rc.0"
   }
 }
-```
-
-Now the name is important because that’s the name of our workspace and that’s how we’re going to refer to this specific workspace when we are running scripts or when we are defining dependencies between local workspaces.
-
-Every package we build it’s own workspace, they can have their own scripts, they can have their own dependencies, they can depend on each other.
-
-As you can see our web app depends on our ui library which is a workspace package in dependencies:
-
-```jsx
- "dependencies": {
+The name field is important because it specifies the name of the workspace. This name is used to refer to this specific workspace when running scripts or defining dependencies between local workspaces.
+Each package is its own workspace. They can have their own scripts, their own dependencies, and they can depend on each other.
+As you can see, our web app depends on our UI library, which is a workspace package, as indicated in the dependencies section:
+"dependencies": {
     ...
     "@repo/ui": "*",
     ...
   },
-```
-
-And we have some devDependencies, we’re depending on eslint config and tyspcript config that you see in the packages:
-
-```jsx
-  "devDependencies": {
+We also have some devDependencies, such as eslint-config and typescript-config, which are listed in the packages folder:
+"devDependencies": {
     ...
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     ...
   }
-```
+Run Our Monorepo
+To run our monorepo, use the following commands:
+npm: npm run dev
+Yarn: yarn dev
+pnpm: pnpm run dev
 
-### Run Our Monorepo
-
-Let’s go ahead and actually run our monorepo:
-
-npm: `npm run dev`
-
-yarn: `yarn dev`
-
-pnpm: `pnpm run dev`
-
-As you can see it is running the Web App and Docs App, so basically when we’re running `npm run dev` in this case it runs `turbo dev` in root `package.json` and this turbo will go to each of our packages and apps and run their dev script. So in the Web and Docs workspaces it is running the dev script which is two nextjs applications.
-
-### How UI Library is gonna work in apps:
-
-Let’s go in web/app/page.tsx and make some changes:
-
-```jsx
+This will start both the Web App and the Docs App. When you run npm run dev, it executes the turbo dev command specified in the root package.json. Turborepo then runs the dev script for each of your packages and apps. In this case, it runs the dev script for both the Web and Docs workspaces, which are Next.js applications.
+How the UI Library Works in Apps
+Let's examine how the UI library is used in the apps. Navigate to web/app/page.tsx and make some changes to see how the UI library integrates:
 import { Button } from "@repo/ui/button";
 
 export default function Home() {
   return <Button appName="web">Click ME</Button>;
 }
-```
-
-You can see the button is coming from our shared ui library and this made possible by refrencing this shared ui library in the web dependency.
-
-If we go to that local ui workspace in the packages, in `package.json` we can see:
-
-```jsx
+You can see that the button is coming from our shared UI library. This is made possible by referencing the shared UI library in the dependencies of the web app.
+If we navigate to the local UI workspace in the packages folder, we can find the following in its package.json:
 {
   "name": "@repo/ui",
   "version": "0.0.0",
@@ -301,30 +236,19 @@ If we go to that local ui workspace in the packages, in `package.json` we can se
     "react": "^18.2.0"
   }
 }
-```
-
-We can see “exports”, so if we want to use ui components in other packages or in the apps, we should export that component in here.
-
-Or we can just do this to export all components:
-
-```jsx
-  "exports": {
+In the package.json, you'll find an "exports" field. To use UI components in other packages or apps, you need to export those components here.
+Alternatively, you can export all components by configuring the "exports" field like this:
+"exports": {
     "./components/*": [
       "./src/components/*.tsx", // use src if you have a src folder
       "./src/components/*.ts" // same for the components
     ]
   },
-```
-
-That’s how easy it is to share a ui library between two completely separate nextjs application.
-
-And also in the devDependencies you can see we use eslint and typescript configs. So we can use packages in packages.
-
-### Typescript Configuration
-
-Let’s quickly look at the shared typescript config since both of our Web and Docs applications are typescript applications. If we go to our pakcages/typescript-config, we can see there are three json files over here; one is base, one is nextjs and one is react-library. In the `package.json` we can see there is a name for this workspace and that’s how we can refrence this config as a dependency in our other workspaces:
-
-```jsx
+That's how easy it is to share a UI library between two completely separate Next.js applications.
+In the devDependencies, you can also see that we use ESLint and TypeScript configurations. This demonstrates how packages can depend on other packages within the monorepo.
+Typescript Configuration
+Let's take a quick look at the shared TypeScript configuration, as both our Web and Docs applications use TypeScript. In the packages/typescript-config directory, you'll find three JSON files: base.json, nextjs.json, and react-library.json.
+In the package.json of this workspace, you can see the name assigned to it. This name allows us to reference this configuration as a dependency in other workspaces.
 {
   "name": "@repo/typescript-config",
   "version": "0.0.0",
@@ -334,11 +258,7 @@ Let’s quickly look at the shared typescript config since both of our Web and D
     "access": "public"
   }
 }
-```
-
-Now if we go back to the Web App and open `tsconfig.json` , we can see it extends the typescript-config workspace and it’s directly importing the `nextjs.json` file which allows us to just get those configs and extend those configs inside of our Web Application:
-
-```jsx
+Now, if we return to the Web App and open the tsconfig.json file, we can see that it extends the typescript-config workspace. It directly imports the nextjs.json file, allowing us to inherit and extend those configurations within our Web Application.
 {
   "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
@@ -358,116 +278,69 @@ Now if we go back to the Web App and open `tsconfig.json` , we can see it extend
   ],
   "exclude": ["node_modules"]
 }
-```
+How to Run Separately
+As you saw, we ran the dev script for both applications in parallel. To run a script on a specific workspace individually, use the following commands:
+npm: npm run dev --workspace web
+pnpm: pnpm --filter web run dev
+Yarn: yarn workspace web run dev
 
-### How to Run Separately
+You can replace web with the name of any other workspace as needed.
+How to Add a Dependency to a Specific Package
+To add a dependency to a specific workspace, such as adding axios to the Web App, follow these steps. Similar to running scripts, you can use the filter flag to specify the workspace where you want to add the dependency:
+pnpm: pnpm --filter web add -D axios
+npm: npm install axios -D -w web
+Yarn: yarn workspace web add --dev axios
 
-As you saw, we’re running the dev script on both of our applications in parallel together. Let’s see how we can run a dev script or any scripts on a specefic workspace:
-
-npm: `npm run dev -w web`
-
-pnpm: `pnpm --filter web run dev`
-
-yarn: `yarn workspace web run dev`
-
-> *you can use our workspace name instead of web*
-> 
-
-### How to add a dependency to a specific package
-
-Let’s see how we would go about adding a dependency to a specific workspace. Now suppose we want to add axios to Web App, similiar to what we did in the previous step we can just pass a filter flag and specify the name of the workapce that we want to add the dependency:
-
-pnpm: `pnpm --filter web add -D axios`
-
-npm: `npm install axios -D -w web`
-
-yarn: `yarn workspace web add --dev axios`
-
-> *you can use our workspace name instead of web*
-> 
-
-And we can confirm this by looking at Web `package.json`:
-
-```jsx
-  "devDependencies": {
+Replace web with the name of your target workspace as needed.
+You can confirm the addition by checking the package.json file in the Web workspace:
+"devDependencies": {
     ...
     "axios": "^1.7.3",
     ...
   }
-```
-
-But if we go to the Docs App and check out the `package.json` there, the axios is not present over here and definitely not in the root folder.
-
-> *also you can change directory to the desired workspace and install your package.*
-> 
+However, if we check the package.json in the Docs App, we'll see that axios is not listed there, and it's definitely not present in the root folder either. This confirms that the dependency was only added to the Web App.
+Alternatively, you can navigate to the desired workspace directory and install the package directly from there.
 
 ---
 
-## Build Process and Cache Behavior
-
-Now let’s look at the build process and some of the caching behavior in turborepo that will beneficial. If we run `pnpm run build` , this is going to run the `turbo run build` which you can see in `turbo.json`:
-
-```jsx
-  "build": {
+Build Process and Cache Behavior
+Let's examine the build process and caching behavior in Turborepo, which can be quite beneficial. When you run pnpm run build, it executes the turbo run build command, as specified in the turbo.json file:
+"build": {
     "dependsOn": ["^build"],  
     "inputs": ["$TURBO_DEFAULT$", ".env*"],
     "outputs": [".next/**", "!.next/cache/**"]
   },
-```
-
-It runs the build script on every package or app that has a specified a build script.
-
-![cache-miss.jpeg](https://prod-files-secure.s3.us-west-2.amazonaws.com/9612ae31-d95a-40ae-b4be-995b966afe3b/c78b92f6-4b3d-457e-b1e1-074bfea81884/cache-miss.jpeg)
-
-Let’s look at the terminal and see what happend over here so as you can see it ran the build script on the Docs and Web workspace, you can see cache miss becuase if you haven’t run this build process before, so it’s executing the build script on this workspace and there is no cache.
-
-Now let’s run the build process again:
-
-![cache-hit.jpeg](https://prod-files-secure.s3.us-west-2.amazonaws.com/9612ae31-d95a-40ae-b4be-995b966afe3b/80aa8808-d7c0-41f0-8dae-575f168fa6e0/cache-hit.jpeg)
-
-This time just happend so quickly and it is becuase the outputs haven’t changed since the previous run so cache hit, it’s just replaying the output we had from previous step, and compare the time of first build(cache miss) and second build(cache hit).
+It runs the build script for every package or app that has a specified build script.
+Let's check the terminal to see what happens during this process. As you can see, it ran the build script for both the Docs and Web workspaces. You'll notice a "cache miss" because this is the first time the build process is being executed, so there is no cached build available yet.
+Now let's run the build process again:
+This time, the build process completes much more quickly. This is because the outputs haven't changed since the previous run, resulting in a cache hit. Turborepo simply replays the cached output from the previous step. Compare the time taken for the first build (cache miss) with the second build (cache hit) to see the difference.
 
 ---
 
-## Create a Turborepo with Shared Ui (Shadcn and Tailwindcss)
+Create a Turborepo with Shared UI (Shadcn and Tailwindcss)
+Now that we've covered setting up workspaces and managing dependencies in a monorepo with Turborepo, let's create a Turborepo that includes two Next.js applications and a shared UI library using Shadcn and Tailwind CSS.
+Install Turborepo
+Run the following command to install Turborepo:
+npx create-turbo@latest
+After running this command, you'll be prompted with the following questions:
+Where would you like to create your Turborepo? .
+Which package manager do you want to use? Choose pnpm (I prefer to continue with pnpm).
 
-Now that we have learned how to setup workspaces and dependencies in a monorepo and shared ui or config packages using turborepo, let’s actually go ahead and create a turborepo with two nextjs apps and a shared ui library using shadcn and tailwindcss.
+Once the installation is complete, you'll see the following structure:
+Two Next.js applications
+Three packages
 
-### Install Turborepo
-
-`npx create-turbo@latest`
-
-After running that command, it asks us these questions:
-
-*Where would you like to create your Turborepo? .*
-
-*Which package manager do you want to use? pnpm (i perefer to continue with pnpm)*
-
-And after it’s finished installing, we’re gonna see this:
-
-![installed-turborepo.jpeg](https://prod-files-secure.s3.us-west-2.amazonaws.com/9612ae31-d95a-40ae-b4be-995b966afe3b/57784dc8-d522-49d0-9bde-76c8247bd9f5/installed-turborepo.jpeg)
-
-Now we have two nextjs apps and three packges. We’re going to add tailwind and shadcn to UI library.
-
-### Install Tailwindcss & Shadcn
-
-First of all we need to install tailwind css in our ui package:
-
-`pnpm --filter ui add tailwindcss` 
-
-And we can confirm this by looking at ui `package.json`:
-
-```jsx
-  "devDependencies": {
+Next, we'll add Tailwind CSS and Shadcn to the UI library.
+Install Tailwindcss & Shadcn
+First, we need to install Tailwind CSS in our UI package:
+pnpm --filter ui add tailwindcss
+You can confirm the installation by checking the package.json file in the UI package.
+"devDependencies": {
     ...
     "tailwindcss": "^3.4.7",
     ...
   },
-```
-
-After tailwindcss installed, we should create a tailwind config with run `npx tailwindcss init`, and we can see a `tailwind.config.js` created in ui package:
-
-```jsx
+After installing Tailwind CSS, create a Tailwind configuration file by running npx tailwindcss init. This will generate a tailwind.config.js file in the UI package:
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [],
@@ -476,57 +349,47 @@ module.exports = {
   },
   plugins: [],
 }
-```
-
-And we need to create a `globals.css` file, i prefer to create it in src in ui package. And add the `@tailwind` directives into it:
-
-`cd .\packages\ui\src\`
-
-`echo. > globals.css`
-
+Next, we need to create a globals.css file. I prefer to place it in the src directory of the UI package. Create the file and add the necessary Tailwind CSS directives:
+cd .\packages\ui\src\
+echo. > globals.css
 And paste this lines into it:
-
-```jsx
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-```
+After setting up Tailwind CSS, we need to install Shadcn. Change to the packages/ui directory and install Shadcn:
+cd .\packages\ui\
+pnpm dlx shadcn-ui@latest init
 
-And after that we need to install shadcn, we’re going to change directory to packages/ui and install shadcn:
+After running the installation command, you'll be prompted with the following questions:
+Would you like to use TypeScript (recommended)?
+Answer: yes
+Which style would you like to use?
+Answer: Default (I prefer to use the default style)
+Which color would you like to use as the base color?
+Answer: Slate
+Where is your global CSS file?
+Answer: src/globals.css
+Would you like to use CSS variables for colors?
+Answer: no
+Are you using a custom Tailwind prefix (e.g., tw-)?
+Answer: ui-
+Where is your tailwind.config.js located?
+Answer: tailwind.config.js
+Configure the import alias for components:
+Answer: @repo/ui/components
+Configure the import alias for utils:
+Answer: @repo/ui/lib/utils
+Are you using React Server Components?
+Answer: no
+Write configuration to components.json. Proceed?
+Answer: yes
 
-`cd .\packages\ui\`
+After the installation is complete, you will see the following changes:
+src Directory: Contains lib and components folders.
+components.json: Created in the root of the UI package.
 
-`pnpm dlx shadcn-ui@latest init` 
-
-After running that command, it asks us these questions:
-
-*Would you like to use TypeScript (recommended)? yes*
-
-*Which style would you like to use? Default (i perefer to use defualt style)*
-
-*Which color would you like to use as base color? Slate*
-
-*Where is your global CSS file? src/globals.css*
-
-*Would you like to use CSS variables for colors? no*
-
-*Are you using a custom tailwind prefix eg. tw-? ui-*
-
-*Where is your tailwind.config.js located? » tailwind.config.js*
-
-*Configure the import alias for components: » @repo/ui/components*
-
-*Configure the import alias for utils: » @repo/ui/lib/utils*
-
-*Are you using React Server Components? no*
-
- *Write configuration to components.json. Proceed? yes*
-
-After installing is finished, you can see `lib` and `components` folders created in `src` and `components.json` created in root of ui:
-
-```jsx
 {
-  "$schema": "https://ui.shadcn.com/schema.json",
+  "$schema": "<https://ui.shadcn.com/schema.json>",
   "style": "default",
   "rsc": false,
   "tsx": true,
@@ -542,11 +405,7 @@ After installing is finished, you can see `lib` and `components` folders created
     "utils": "src/lib/utils"
   }
 }
-```
-
-Now we should make this changes in `tsconfig.json` in ui:
-
-```jsx
+Next, we need to update the tsconfig.json in the ui package to reflect the changes made for Shadcn and Tailwind CSS. Modify the tsconfig.json file to include the new paths and configurations:
 {
   "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
@@ -558,11 +417,7 @@ Now we should make this changes in `tsconfig.json` in ui:
   "include": ["src"],
   "exclude": ["node_modules"]
 }
-```
-
-After that i want to make some changes in `tailwind.config.js` in ui package, first of all change the file name to `tailwind.config.ts` , and then paste this lines into that:
-
-```jsx
+Next, we need to modify the tailwind.config.js file in the ui package. First, rename the file to tailwind.config.ts. Then, update the file with the following content:
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
@@ -606,23 +461,15 @@ const config = {
   },
   plugins: [tailwindcssAnimate],
 } satisfies Config;
-
 export default config;
-```
-
-Now let’s go ahead and add shadcn button to see how’s gonna work.
-
-run `pnpm dlx shadcn-ui@latest add button`
-
-and you can see the Button component created in `components/ui` folder:
-
-```jsx
+Now, let's add a Shadcn button to see how it integrates with our setup. Follow these steps to include a Shadcn button component in your UI package:
+run pnpm dlx shadcn-ui@latest add button
+and you can see the Button component created in components/ui folder:
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@repo/ui/lib/utils";
-
 const buttonVariants = cva(
   "ui-inline-flex ui-items-center ui-justify-center ui-whitespace-nowrap ui-rounded-md ui-text-sm ui-font-medium ui-ring-offset-white ui-transition-colors focus-visible:ui-outline-none focus-visible:ui-ring-2 focus-visible:ui-ring-slate-950 focus-visible:ui-ring-offset-2 disabled:ui-pointer-events-none disabled:ui-opacity-50 dark:ui-ring-offset-slate-950 dark:focus-visible:ui-ring-slate-300",
   {
@@ -653,13 +500,11 @@ const buttonVariants = cva(
     },
   }
 );
-
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
-
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
@@ -673,13 +518,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 Button.displayName = "Button";
-
 export { Button, buttonVariants };
-```
-
-If you need you can create a global `postcss.config.mjs` in ui package to use in other apps:
-
-```jsx
+If you need you can create a global postcss.config.mjs in ui package to use in other apps:
 /** @type {import('postcss-load-config').Config} */
 const config = {
   plugins: {
@@ -689,12 +529,8 @@ const config = {
 };
 
 export default config;
-```
-
-Now we’re going to ui’s `package.json` to change exports so we can use ui configs and ui components in other apps and packages:
-
-```jsx
-  "exports": {
+Now we're going to ui's package.json to change exports so we can use ui configs and ui components in other apps and packages:
+"exports": {
     "./globals.css": "./src/globals.css",
     "./postcss.config": "./postcss.config.mjs",
     "./tailwind.config": "./tailwind.config.ts",
@@ -704,45 +540,24 @@ Now we’re going to ui’s `package.json` to change exports so we can use ui co
       "./src/components/*.ts"
     ]
   },
-```
-
-### How to use Shared Library in apps
-
-We have created this ui library to use in all apps and also we can use tailwind config of ui library in all apps. So we have a main tailwind config and we can create many tailwind config from that.
-
-For example, in web app we want to use main tailwind config and also our app have different classes and styles from main tailwind config, we can create a tailwind config for web and use main tailwind config and add web classes to it.
-
-First of all, we need to install ui library in our app. if you didn’t delete the web and docs apps, they’re have ui library in their dependencies:
-
-`web/package.json`:
-
-```jsx
-  "dependencies": {
+How to Use the Shared Library in Apps
+We have created this UI library to be used across all apps. Additionally, we can utilize the Tailwind CSS configuration from the UI library in all apps. By having a main Tailwind configuration, we can derive multiple Tailwind configurations from it.
+For example, in the Web App, we want to use the main Tailwind configuration while also adding app-specific classes and styles. To achieve this, we can create a tailwind.config.ts for the Web App that imports the main Tailwind configuration and extends it with additional classes specific to the Web App.
+First, we need to install the UI library in our app. If you haven't deleted the Web and Docs apps, they already have the UI library included in their dependencies:
+web/package.json:
+"dependencies": {
 	   ...
     "@repo/ui": "workspace:*",
 		 ...
   },
-```
-
-If you haven’t ui in your app dependency, you must to add it like above and run `pnpm install`.
-
+If you haven't ui in your app dependency, you must to add it like above and run pnpm install.
 Now we can use all exported components and configs in our Web App.
-
-First of all for using tailwind in web we should install tailwind in our app:
-
-1.run `pnpm --filter web add -D tailwindcss postcss autoprefixer`
-
-2.create `tailwind.config.ts` :
-
+First, to use Tailwind CSS in the Web App, follow these steps:
+1.run pnpm --filter web add -D tailwindcss postcss autoprefixer
+2.create tailwind.config.ts :
 if you just want to use global tailwind config in Web App you just need do this:
-
-```jsx
 export * from "@repo/ui/tailwind.config";
-```
-
 but if you want also add new classes and styles just for use in Web App you can do this:
-
-```jsx
 import type { Config } from "tailwindcss";
 import config from "@repo/ui/tailwind.config";
 
@@ -767,36 +582,18 @@ const webConfig = {
     },
   },
 } satisfies Config;
-
 export default webConfig;
-```
-
-i just added a test color to see if it’s working.
-
-and after that we have to create a `postcss.config.mjs` in web and paste this into it:
-
-```jsx
+i just added a test color to see if it's working.
+and after that we have to create a postcss.config.mjs in web and paste this into it:
 export { default } from "@repo/ui/postcss.config";
-```
-
-and for the last part, we need to import our globals css into web `layout.tsx` like this:
-
-```jsx
+and for the last part, we need to import our globals css into web layout.tsx like this:
 import "@repo/ui/globals.css";
-```
-
 Now we can use components and configs from ui in our Web App.
-
-`web/app/page.tsx`:
-
-```jsx
+web/app/page.tsx:
 import { Button } from "@repo/ui/components/ui/button";
 
 export default function Home() {
   return <Button variant="destructive">Click Me</Button>;
 }
-```
-
 you can see we used button from ui package in web application.
-
-That’s it! we have created a monorepo using turborepo and a ui library that’s sharing components and configs to all our apps.
+That's it! We have successfully created a monorepo using Turborepo and set up a UI library that shares components and configurations across all our applications.
